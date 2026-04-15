@@ -1,7 +1,5 @@
-extern crate cld2;
-
+use pycld2::detect_language;
 use std::default::Default;
-use cld2::{detect_language_ext, Format};
 
 static TEXTS: &'static [&'static str] = &[
     // English.
@@ -10,7 +8,6 @@ static TEXTS: &'static [&'static str] = &[
 And he stoppeth one of three.
 'By thy long grey beard and glittering eye,
 Now wherefore stopp'st thou me?",
-
     // French.
     // Traditional children's song.
     "Sur le pont d'Avignon,
@@ -21,7 +18,6 @@ Les belles dames font comme ça
 Et puis encore comme ça.
 Les messieurs font comme ça
 Et puis encore comme ça.",
-
     // Mixed French and English.
     // Combination of the two above.
     "It is an ancient Mariner,
@@ -37,7 +33,6 @@ Les belles dames font comme ça
 Et puis encore comme ça.
 Les messieurs font comme ça
 Et puis encore comme ça.",
-
     // Middle Egyptian.
     // ("rA n(y) pr(i).t m hrw" or "The Book of Going Forth by Day")
     //
@@ -45,20 +40,18 @@ Et puis encore comme ça.",
     // bits, and to see whether cld2 can detect obscure languages using
     // nothing but script data.
     "𓂋𓏤𓈖𓉐𓂋𓏏𓂻𓅓𓉔𓂋𓅱𓇳",
-
     // Short text.
-    "blah"
+    "blah",
 ];
 
 fn main() {
     for (i, &text) in TEXTS.iter().enumerate() {
         println!("=== Text #{}\n", i + 1);
 
-        let detected =
-            detect_language_ext(text, Format::Text, &Default::default());
+        let detected = detect_language(text, &Default::default());
 
         println!("Language: {:?}", detected.language);
-        println!("Reliability: {:?}", detected.reliability);
+        println!("Reliable: {:?}", detected.reliable);
         println!("Bytes of text: {}", detected.text_bytes);
         println!("\n= Per-language scores:\n");
 
@@ -69,4 +62,3 @@ fn main() {
         }
     }
 }
-
