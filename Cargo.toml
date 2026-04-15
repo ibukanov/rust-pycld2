@@ -21,9 +21,9 @@ maintenance = { status = "deprecated" }
 unstable = []
 
 [dependencies]
-cld2-sys = { version = "1.0.2", path = "cld2-sys" }
+cld2-sys = { version = "1.0.2", path = "pycld2-sys" }
 lazy_static = "0.1.15"
 libc = "0.2.2"
 
 [workspace]
-members = ["cld2-sys"]
+members = ["pycld2-sys"]
