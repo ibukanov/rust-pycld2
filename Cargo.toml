@@ -1,29 +1,19 @@
 [package]
 
-name = "cld2"
-version = "1.0.2"
+name = "pycld2"
 authors = ["Eric Kidd <git@randomhacks.net>"]
+edition = "2021"
 
 description = "Detect natural language used in text using the cld2 library"
 license = "Unlicense"
 
-documentation = "https://docs.rs/cld2"
-repository = "https://github.com/emk/rust-cld2"
+repository = "https://github.com/ibukanov/rust-pycld2"
 readme = "README.md"
 keywords = ["text"]
 
-[badges]
-maintenance = { status = "deprecated" }
-
-[features]
-# Allow access to unstable features when being built with a nightly compiler,
-# to keep travis-cargo happy and enable access to benchmarks if we want them.
-unstable = []
-
 [dependencies]
-cld2-sys = { version = "1.0.2", path = "pycld2-sys" }
-lazy_static = "0.1.15"
-libc = "0.2.2"
+pycld2-sys = { path = "pycld2-sys" }
+libc = "0.2.172"
 
 [workspace]
 members = ["pycld2-sys"]

@@ -9,16 +9,14 @@
 #![allow(non_camel_case_types)]
 #![allow(non_upper_case_globals)]
 
-extern crate libc;
-
 pub use encodings::*;
-pub use languages::*;
 pub use flags::*;
+pub use languages::*;
 pub use wrapper::*;
 
 mod encodings;
-mod languages;
 mod flags;
+mod languages;
 mod wrapper;
 
 // Just a single placeholder test in case somebody runs 'cargo test' in
@@ -46,9 +44,12 @@ Eftsoons his hand dropt he.
 
     let mut is_reliable: bool = false;
     let language = unsafe {
-        CLD2_DetectLanguage(english.as_ptr() as *const i8,
-                            english.len() as libc::c_int,
-                            true, &mut is_reliable)
+        CLD2_DetectLanguage(
+            english.as_ptr() as *const i8,
+            english.len() as libc::c_int,
+            true,
+            &mut is_reliable,
+        )
     };
     assert_eq!(Language::ENGLISH, language);
     assert_eq!(true, is_reliable);
@@ -57,9 +58,9 @@ Eftsoons his hand dropt he.
 // This particular API has extra wrapper code, so we want to test it.
 #[test]
 fn test_result_chunks() {
-    use libc::{c_int, c_double};
-    use std::slice::from_raw_parts;
+    use libc::{c_double, c_int};
     use std::iter::repeat;
+    use std::slice::from_raw_parts;
 
     let mixed = "
 It is an ancient Mariner,
@@ -78,12 +79,13 @@ Les messieurs font comme ça
 Et puis encore comme ça.
 ";
 
-    let hints = CLDHints{content_language_hint: std::ptr::null(),
-                         tld_hint: std::ptr::null(),
-                         encoding_hint: Encoding::UNKNOWN_ENCODING as c_int,
-                         language_hint: Language::UNKNOWN_LANGUAGE};
-    let mut language3: Vec<Language> =
-        repeat(Language::UNKNOWN_LANGUAGE).take(3).collect();
+    let hints = CLDHints {
+        content_language_hint: std::ptr::null(),
+        tld_hint: std::ptr::null(),
+        encoding_hint: Encoding::UNKNOWN_ENCODING as c_int,
+        language_hint: Language::UNKNOWN_LANGUAGE,
+    };
+    let mut language3: Vec<Language> = repeat(Language::UNKNOWN_LANGUAGE).take(3).collect();
     let mut percent3: Vec<c_int> = repeat(0).take(3).collect();
     let mut normalized_score3: Vec<c_double> = repeat(0.0).take(3).collect();
     let mut text_bytes: c_int = 0;
@@ -92,14 +94,19 @@ Et puis encore comme ça.
     let chunks = unsafe { CLD2_ResultChunkVector_new() };
 
     let language = unsafe {
-        CLD2_ExtDetectLanguageSummary4(mixed.as_ptr() as *const i8,
-                                       mixed.len() as c_int,
-                                       true, &hints, 0,
-                                       language3.as_mut_ptr(),
-                                       percent3.as_mut_ptr(),
-                                       normalized_score3.as_mut_ptr(),
-                                       chunks,
-                                       &mut text_bytes, &mut is_reliable)
+        CLD2_ExtDetectLanguageSummary4(
+            mixed.as_ptr() as *const i8,
+            mixed.len() as c_int,
+            true,
+            &hints,
+            0,
+            language3.as_mut_ptr(),
+            percent3.as_mut_ptr(),
+            normalized_score3.as_mut_ptr(),
+            chunks,
+            &mut text_bytes,
+            &mut is_reliable,
+        )
     };
     assert_eq!(Language::FRENCH, language);
 
@@ -111,19 +118,13 @@ Et puis encore comme ça.
         let mut found_mariner = false;
         let mut found_comme_ca = false;
         for chunk in slice.iter() {
-            let text =
-                &mixed[chunk.offset as usize..
-                       chunk.offset as usize + chunk.bytes as usize];
+            let text = &mixed[chunk.offset as usize..chunk.offset as usize + chunk.bytes as usize];
 
-            if chunk.lang1 == Language::ENGLISH as u16
-                && text.contains("ancient Mariner")
-            {
+            if chunk.lang1 == Language::ENGLISH as u16 && text.contains("ancient Mariner") {
                 found_mariner = true;
             }
 
-            if chunk.lang1 == Language::FRENCH as u16
-                && text.contains("comme ça")
-            {
+            if chunk.lang1 == Language::FRENCH as u16 && text.contains("comme ça") {
                 found_comme_ca = true;
             }
         }
@@ -131,15 +132,17 @@ Et puis encore comme ça.
         assert!(found_comme_ca);
     };
 
-    unsafe { CLD2_ResultChunkVector_delete(chunks); }
+    unsafe {
+        CLD2_ResultChunkVector_delete(chunks);
+    }
 }
 
 #[test]
 fn test_language_names() {
-    use std::ffi::{CString, CStr};
+    use std::ffi::{CStr, CString};
     use std::str::from_utf8;
 
-    let code = unsafe { 
+    let code = unsafe {
         let char_ptr = CLD2_LanguageCode(Language::ENGLISH);
         let bytes = CStr::from_ptr(char_ptr).to_bytes();
         from_utf8(bytes).unwrap().to_string()
